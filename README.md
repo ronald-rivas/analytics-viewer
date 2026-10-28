@@ -9,7 +9,8 @@ View Firebase Analytics events and user properties from a connected Android devi
 - Live list of Firebase Analytics events, newest first (up to 1000 events).
 - Event parameters shown in a **Parameters** tab.
 - User properties shown in a **Properties** tab.
-- **Clear** button to empty the list.
+- **Search** button (magnifier) to filter events by name.
+- **Clear** button to empty the event list (user properties are kept).
 - **Sync** button to reconnect to adb and re-enable debug logging, for example after reconnecting a device.
 
 ## Requirements
@@ -56,4 +57,4 @@ Copyright 2026 Ronald Antonio Rivas Ramírez.
 
 Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).
 
-Version: `0.0.2`
+Version: `0.0.3`

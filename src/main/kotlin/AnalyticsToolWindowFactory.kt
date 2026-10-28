@@ -154,13 +154,28 @@ class AnalyticsPanel : JPanel(BorderLayout()) {
     private val paramsPanel = JPanel().apply { layout = BoxLayout(this, BoxLayout.Y_AXIS) }
     private val propsPanel = JPanel().apply { layout = BoxLayout(this, BoxLayout.Y_AXIS) }
     private val properties = linkedMapOf<String, String>()
+    private val events = ArrayList<AnalyticsEvent>()
+    private var filter = ""
+
+    private fun matches(e: AnalyticsEvent) =
+        filter.isBlank() || e.title.contains(filter, true) || e.name.contains(filter, true)
+
+    private fun refilter() {
+        model.clear()
+        events.filter { matches(it) }.forEach { model.addElement(it) }
+        if (model.size() > 0) list.selectedIndex = 0 else renderRows(paramsPanel, emptyList())
+    }
 
     val reader = LogcatReader(
         onEvent = { e ->
             invoke {
-                model.add(0, e)
-                if (model.size() > MAX_EVENTS) model.removeRange(MAX_EVENTS, model.size() - 1)
-                if (list.selectedIndex < 0) list.selectedIndex = 0
+                events.add(0, e)
+                if (events.size > MAX_EVENTS) events.subList(MAX_EVENTS, events.size).clear()
+                if (matches(e)) {
+                    model.add(0, e)
+                    if (model.size() > MAX_EVENTS) model.removeRange(MAX_EVENTS, model.size() - 1)
+                    if (list.selectedIndex < 0) list.selectedIndex = 0
+                }
             }
         },
         onProperty = { k, v -> invoke { properties[k] = v; renderRows(propsPanel, properties.toList()) } }
@@ -230,16 +245,37 @@ class AnalyticsPanel : JPanel(BorderLayout()) {
         }
         val clear = JButton("Clear").apply {
             addActionListener {
-                this@AnalyticsPanel.model.clear(); this@AnalyticsPanel.properties.clear()
-                renderRows(paramsPanel, emptyList()); renderRows(propsPanel, emptyList())
+                this@AnalyticsPanel.events.clear(); this@AnalyticsPanel.model.clear()
+                renderRows(paramsPanel, emptyList())
             }
         }
         val sync = JButton("Sync").apply {
             toolTipText = "Reconnect to adb and re-enable Firebase Analytics debug logging"
             addActionListener { reader.start() }
         }
+        val searchField = com.intellij.ui.components.JBTextField().apply {
+            isVisible = false
+            emptyText.text = "Filter events"
+            document.addDocumentListener(object : javax.swing.event.DocumentListener {
+                private fun changed() { filter = text.trim(); refilter() }
+                override fun insertUpdate(e: javax.swing.event.DocumentEvent) = changed()
+                override fun removeUpdate(e: javax.swing.event.DocumentEvent) = changed()
+                override fun changedUpdate(e: javax.swing.event.DocumentEvent) = changed()
+            })
+        }
+        val search = JButton(com.intellij.icons.AllIcons.Actions.Search).apply {
+            toolTipText = "Filter events"
+            addActionListener {
+                searchField.isVisible = !searchField.isVisible
+                if (searchField.isVisible) searchField.requestFocusInWindow() else searchField.text = ""
+                searchField.parent?.revalidate()
+            }
+        }
         val left = JPanel(BorderLayout()).apply {
-            add(JPanel(FlowLayout(FlowLayout.LEFT)).apply { add(clear); add(sync) }, BorderLayout.NORTH)
+            add(JPanel(BorderLayout()).apply {
+                add(JPanel(FlowLayout(FlowLayout.LEFT)).apply { add(clear); add(sync); add(search) }, BorderLayout.NORTH)
+                add(searchField, BorderLayout.CENTER)
+            }, BorderLayout.NORTH)
             add(
                 JBScrollPane(list, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                 BorderLayout.CENTER

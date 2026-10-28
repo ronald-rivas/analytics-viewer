@@ -20,6 +20,13 @@ dependencies {
     }
 }
 
+kotlin {
+    compilerOptions {
+        // Don't generate bridge methods for interface default methods (avoids deprecated/experimental API usages)
+        freeCompilerArgs.add("-jvm-default=no-compatibility")
+    }
+}
+
 intellijPlatform {
     pluginConfiguration {
         version = providers.gradleProperty("version")
@@ -28,6 +35,11 @@ intellijPlatform {
             untilBuild = provider { null }
         }
         changeNotes = """
+            <b>0.0.3</b>
+            <ul>
+                <li>Search button to filter events by name.</li>
+                <li>Fixed: Clear no longer removes user properties.</li>
+            </ul>
             <b>0.0.2</b>
             <ul>
                 <li>Long event titles are now truncated with an ellipsis; the full title is shown in a tooltip.</li>

@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [0.0.3]
+
+### Added
+- Search button to filter events by name.
+
+### Fixed
+- Clear no longer removes user properties.
+
 ## [0.0.2]
 
 ### Changed
