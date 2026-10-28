@@ -35,6 +35,14 @@ intellijPlatform {
             untilBuild = provider { null }
         }
         changeNotes = """
+            <b>0.1.0</b>
+            <ul>
+                <li>Filter field is always active, below the toolbar.</li>
+                <li>Icon-only Sync and Clear actions with hover feedback.</li>
+                <li>New button-style event list and folder-style Parameters/Properties tabs.</li>
+                <li>Thinner, easier-to-grab resize divider.</li>
+                <li>Fixed: IDE freeze when clearing the filter with many events.</li>
+            </ul>
             <b>0.0.3</b>
             <ul>
                 <li>Search button to filter events by name.</li>

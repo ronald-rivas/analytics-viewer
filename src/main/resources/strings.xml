@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tab_parameters">Parameters</string>
+    <string name="tab_properties">Properties</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_sync">Resync</string>
+    <string name="filter_hint">Filter events</string>
+</resources>

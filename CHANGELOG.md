@@ -4,6 +4,21 @@
 
 ## [Unreleased]
 
+## [0.1.0]
+
+### Added
+- Always-active filter field below the toolbar (replaces the search button), with debounce.
+- Icon-only Sync and Clear actions with hover feedback.
+- Strings moved to `strings.xml`.
+
+### Changed
+- New button-style event list, folder-style Parameters/Properties tabs with fading side lines.
+- Thinner, easier-to-grab resize divider.
+- More spacing between parameter names and values.
+
+### Fixed
+- IDE freeze when clearing the filter with many accumulated events.
+
 ## [0.0.3]
 
 ### Added
