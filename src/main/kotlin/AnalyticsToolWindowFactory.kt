@@ -193,6 +193,9 @@ class AnalyticsPanel : JPanel(BorderLayout()) {
         showSelected()
     }
 
+    @Volatile
+    private var epoch = 0
+
     val reader = LogcatReader(
         onEvent = { e ->
             invoke {
@@ -212,7 +215,10 @@ class AnalyticsPanel : JPanel(BorderLayout()) {
         const val MAX_EVENTS = 1000
     }
 
-    private fun invoke(block: () -> Unit) = ApplicationManager.getApplication().invokeLater(block)
+    private fun invoke(block: () -> Unit) {
+        val e = epoch
+        ApplicationManager.getApplication().invokeLater { if (e == epoch) block() }
+    }
 
     init {
         list.selectionMode = ListSelectionModel.SINGLE_SELECTION
@@ -350,7 +356,15 @@ class AnalyticsPanel : JPanel(BorderLayout()) {
         val sync = iconButton(
             com.intellij.icons.AllIcons.Actions.Refresh,
             Strings["action_sync"]
-        ) { reader.start() }
+        ) {
+            epoch++
+            events.clear(); model.clear()
+            properties.clear()
+            renderRows(paramsPanel, emptyList())
+            renderRows(propsPanel, emptyList())
+            shownEvent = null
+            reader.start()
+        }
         val searchField = com.intellij.ui.components.JBTextField().apply {
             emptyText.text = Strings["filter_hint"]
             val debounce = javax.swing.Timer(150) { filter = text.trim(); refilter() }.apply { isRepeats = false }
