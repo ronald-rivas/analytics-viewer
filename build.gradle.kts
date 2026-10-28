@@ -23,7 +23,15 @@ dependencies {
 intellijPlatform {
     pluginConfiguration {
         version = providers.gradleProperty("version")
+        ideaVersion {
+            sinceBuild = "243"
+            untilBuild = provider { null }
+        }
         changeNotes = """
+            <b>0.0.2</b>
+            <ul>
+                <li>Long event titles are now truncated with an ellipsis; the full title is shown in a tooltip.</li>
+            </ul>
             <b>0.0.1</b>
             <ul>
                 <li>Real-time list of Firebase Analytics events read from logcat through adb.</li>

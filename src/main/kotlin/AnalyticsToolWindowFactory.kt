@@ -145,7 +145,12 @@ class AnalyticsToolWindowFactory : ToolWindowFactory {
 
 class AnalyticsPanel : JPanel(BorderLayout()) {
     private val model = DefaultListModel<AnalyticsEvent>()
-    private val list = JBList(model)
+    private val list = object : JBList<AnalyticsEvent>(model) {
+        override fun getToolTipText(e: MouseEvent): String? {
+            val i = locationToIndex(e.point)
+            return if (i >= 0 && getCellBounds(i, i)?.contains(e.point) == true) model.getElementAt(i).title else null
+        }
+    }
     private val paramsPanel = JPanel().apply { layout = BoxLayout(this, BoxLayout.Y_AXIS) }
     private val propsPanel = JPanel().apply { layout = BoxLayout(this, BoxLayout.Y_AXIS) }
     private val properties = linkedMapOf<String, String>()
@@ -177,6 +182,7 @@ class AnalyticsPanel : JPanel(BorderLayout()) {
                 )
                 background = if (sel) l.selectionBackground else l.background
                 foreground = if (sel) l.selectionForeground else l.foreground
+                preferredSize = java.awt.Dimension(0, preferredSize.height)
             }
             JPanel(BorderLayout()).apply {
                 isOpaque = false
@@ -234,7 +240,10 @@ class AnalyticsPanel : JPanel(BorderLayout()) {
         }
         val left = JPanel(BorderLayout()).apply {
             add(JPanel(FlowLayout(FlowLayout.LEFT)).apply { add(clear); add(sync) }, BorderLayout.NORTH)
-            add(JBScrollPane(list), BorderLayout.CENTER)
+            add(
+                JBScrollPane(list, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
+                BorderLayout.CENTER
+            )
         }
         add(
             JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, tabs).apply { dividerLocation = 280; border = JBUI.Borders.empty() },
