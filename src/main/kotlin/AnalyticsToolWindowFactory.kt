@@ -102,6 +102,18 @@ class LogcatReader(private val onEvent: (AnalyticsEvent) -> Unit, private val on
         }
     }
 
+    fun isDeviceConnected(): Boolean = try {
+        val p = adb("get-state")
+        try {
+            val done = p.waitFor(3, java.util.concurrent.TimeUnit.SECONDS)
+            done && p.exitValue() == 0 && p.inputStream.bufferedReader().readText().trim() == "device"
+        } finally {
+            p.destroyForcibly()
+        }
+    } catch (e: Exception) {
+        false
+    }
+
     @Synchronized
     fun start() {
         stop()
@@ -353,10 +365,7 @@ class AnalyticsPanel : JPanel(BorderLayout()) {
             events.clear(); model.clear()
             renderRows(paramsPanel, emptyList())
         }
-        val sync = iconButton(
-            com.intellij.icons.AllIcons.Actions.Refresh,
-            Strings["action_sync"]
-        ) {
+        fun resync() {
             epoch++
             events.clear(); model.clear()
             properties.clear()
@@ -365,6 +374,38 @@ class AnalyticsPanel : JPanel(BorderLayout()) {
             shownEvent = null
             reader.start()
         }
+        val sync = iconButton(com.intellij.icons.AllIcons.Actions.Refresh, Strings["action_sync"]) { resync() }
+        var connected: Boolean? = null
+        val status = object : JBLabel() {
+            override fun getPreferredSize() = java.awt.Dimension(JBUI.scale(14), JBUI.scale(22))
+            override fun getMinimumSize() = preferredSize
+            override fun getMaximumSize() = preferredSize
+            override fun paintComponent(g: java.awt.Graphics) {
+                val g2 = g.create() as java.awt.Graphics2D
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON)
+                g2.color = when (connected) {
+                    true -> JBColor(java.awt.Color(0x3FB950), java.awt.Color(0x3FB950))
+                    false -> JBColor(java.awt.Color(0xE5534B), java.awt.Color(0xE5534B))
+                    null -> JBColor.GRAY
+                }
+                val d = JBUI.scale(8)
+                g2.fillOval((width - d) / 2, (height - d) / 2, d, d)
+                g2.dispose()
+            }
+        }
+        val poll = com.intellij.util.concurrency.AppExecutorUtil.getAppScheduledExecutorService()
+            .scheduleWithFixedDelay({
+                val now = reader.isDeviceConnected()
+                ApplicationManager.getApplication().invokeLater {
+                    val prev = connected
+                    if (prev == now) return@invokeLater
+                    connected = now
+                    status.toolTipText = Strings[if (now) "status_connected" else "status_disconnected"]
+                    status.repaint()
+                    if (prev == false && now) resync()
+                }
+            }, 0, 2, java.util.concurrent.TimeUnit.SECONDS)
+        Disposer.register(reader) { poll.cancel(true) }
         val searchField = com.intellij.ui.components.JBTextField().apply {
             emptyText.text = Strings["filter_hint"]
             val debounce = javax.swing.Timer(150) { filter = text.trim(); refilter() }.apply { isRepeats = false }
@@ -380,6 +421,7 @@ class AnalyticsPanel : JPanel(BorderLayout()) {
                 border = JBUI.Borders.empty(4, 10)
                 add(JPanel().apply {
                     layout = BoxLayout(this, BoxLayout.X_AXIS)
+                    add(status)
                     add(javax.swing.Box.createHorizontalGlue())
                     add(sync)
                     add(javax.swing.Box.createRigidArea(java.awt.Dimension(JBUI.scale(8), 0)))

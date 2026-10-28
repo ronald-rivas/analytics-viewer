@@ -4,6 +4,15 @@
 
 ## [Unreleased]
 
+## [0.1.1]
+
+### Added
+- ADB status indicator (green: device connected, red: no device / adb not available).
+- Automatic resync when a device reconnects.
+
+### Fixed
+- Resync duplicated events; it now clears events and user properties and reloads them from logcat.
+
 ## [0.1.0]
 
 ### Added

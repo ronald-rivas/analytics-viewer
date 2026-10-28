@@ -35,6 +35,12 @@ intellijPlatform {
             untilBuild = provider { null }
         }
         changeNotes = """
+            <b>0.1.1</b>
+            <ul>
+                <li>ADB status indicator (green: device connected, red: no device).</li>
+                <li>Automatic resync when a device reconnects.</li>
+                <li>Fixed: Resync duplicated events; it now clears and reloads events and user properties.</li>
+            </ul>
             <b>0.1.0</b>
             <ul>
                 <li>Filter field is always active, below the toolbar.</li>

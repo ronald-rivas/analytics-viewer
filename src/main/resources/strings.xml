@@ -5,4 +5,6 @@
     <string name="action_clear">Clear</string>
     <string name="action_sync">Resync</string>
     <string name="filter_hint">Filter events</string>
+    <string name="status_connected">ADB connected</string>
+    <string name="status_disconnected">No device / ADB not available</string>
 </resources>
