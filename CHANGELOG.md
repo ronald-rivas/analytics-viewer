@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+## [0.2.0]
+
+### Changed
+- Internal restructuring: the tool window was split into small components (`model`, `data`, `ui`) with no visual or behavioral changes.
+
 ## [0.1.1]
 
 ### Added

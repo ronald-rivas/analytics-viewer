@@ -35,6 +35,10 @@ intellijPlatform {
             untilBuild = provider { null }
         }
         changeNotes = """
+            <b>0.2.0</b>
+            <ul>
+                <li>Internal restructuring into small components; no visual or behavioral changes.</li>
+            </ul>
             <b>0.1.1</b>
             <ul>
                 <li>ADB status indicator (green: device connected, red: no device).</li>
