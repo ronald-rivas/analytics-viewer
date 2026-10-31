@@ -18,7 +18,7 @@ dependencies {
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
-        androidStudio("2024.3.2.14")
+        local("C:/Program Files/Android/Android Studio")
         testFramework(TestFrameworkType.Platform)
 
         // Add plugin dependencies for compilation here, for example:
@@ -42,6 +42,13 @@ intellijPlatform {
             untilBuild = provider { null }
         }
         changeNotes = """
+            <b>0.4.3</b>
+            <ul>
+                <li>Added an "All" checkbox with a partial-selection state and a "Remove filters" link.</li>
+                <li>Kept filter inputs and spacing stable when resizing the dialog.</li>
+                <li>Fixed filtering when all parameters are deselected and reselecting "All" afterwards.</li>
+                <li>Refactored parameter filtering and added tests.</li>
+            </ul>
             <b>0.4.2</b>
             <ul>
                 <li>Fixed: Java and Kotlin bytecode now target Java 17 so the plugin loads in Android Studio Meerkat with JDK 17.</li>

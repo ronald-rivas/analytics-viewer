@@ -4,6 +4,20 @@
 
 ## [Unreleased]
 
+## [0.4.3]
+
+### Added
+- Add an "All" checkbox to select or deselect every parameter, with an indeterminate state for partial selections.
+- Add a "Remove filters" link to clear text entered in parameter filters without changing their selection.
+
+### Changed
+- Keep filter input sizes and spacing stable when resizing the dialog.
+- Extract parameter-matching logic into a separate, tested component.
+
+### Fixed
+- Hide analytics events when all parameters are deselected.
+- Allow the "All" checkbox to be selected again after deselecting everything.
+
 ## [0.4.2]
 
 ### Fixed
