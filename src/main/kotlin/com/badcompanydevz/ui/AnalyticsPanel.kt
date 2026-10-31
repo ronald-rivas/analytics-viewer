@@ -81,24 +81,11 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
 
     fun start() = reader.start()
 
-    private fun visibleParams(event: AnalyticsEvent?): List<Pair<String, String>> {
-        val params = event?.params.orEmpty()
-        if (parameterFilters.values.none { it != null }) return params
-        return params.filter { (name, _) -> parameterFilters[name] != null }
-    }
+    private fun currentFilter() = ParameterFilter(parameterFilters, filter)
 
-    private fun matches(e: AnalyticsEvent) =
-        if (filter.isNotBlank()) {
-            e.title.contains(filter, true) || e.name.contains(filter, true)
-        } else {
-            (parameterFilters.values.none { it != null } ||
-                e.params.any { (name, actual) ->
-                    parameterFilters[name]?.let { it.isBlank() || actual.contains(it, true) } == true
-                }) &&
-                parameterFilters.all { (name, value) ->
-                    value.isNullOrBlank() || e.params.any { (key, actual) -> key == name && actual.contains(value, true) }
-                }
-        }
+    private fun visibleParams(event: AnalyticsEvent?) = currentFilter().visibleParams(event)
+
+    private fun matches(event: AnalyticsEvent) = currentFilter().matches(event)
 
     private fun openParameterFilters() {
         val dialog = ParameterFiltersDialog(parameterFilters.keys, parameterFilters)
@@ -126,8 +113,9 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
     }
 
     private fun refilter() {
-        eventList.setEvents((if (paused) eventsAtPause else events).filter(::matches))
-        parametersView.show(visibleParams(eventList.selectedValue))
+        val current = currentFilter()
+        eventList.setEvents((if (paused) eventsAtPause else events).filter(current::matches))
+        parametersView.show(current.visibleParams(eventList.selectedValue))
     }
 
     private fun clear() {
