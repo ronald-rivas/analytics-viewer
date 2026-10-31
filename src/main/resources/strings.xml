@@ -10,6 +10,8 @@
     <string name="action_parameter_filters">Parameter filters</string>
     <string name="parameter_filters_title">Filters</string>
     <string name="parameter_filter_hint">Filter</string>
+    <string name="parameter_filter_all">All</string>
+    <string name="action_remove_filters">Remove filters</string>
     <string name="action_apply">Apply</string>
     <string name="status_connected">ADB connected</string>
     <string name="status_disconnected">No device / ADB not available</string>
