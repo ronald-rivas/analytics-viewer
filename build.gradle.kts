@@ -35,6 +35,12 @@ intellijPlatform {
             untilBuild = provider { null }
         }
         changeNotes = """
+            <b>0.4.0</b>
+            <ul>
+                <li>Parameter filters with visibility and value matching; applying filters resyncs without resetting them.</li>
+                <li>Pause and resume incoming analytics events without losing events received during the pause.</li>
+                <li>Parameter filters button is disabled when no events are available.</li>
+            </ul>
             <b>0.2.0</b>
             <ul>
                 <li>Internal restructuring into small components; no visual or behavioral changes.</li>

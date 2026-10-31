@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 
+## [0.4.0]
+
+### Added
+- Parameter filters dialog with per-parameter visibility controls and optional value matching.
+- Pause and resume controls for incoming analytics events; events received while paused appear on resume.
+
+### Changed
+- Events match the selected parameter filters when at least one selected parameter is present; all filled-in values must match.
+- Applying parameter filters resyncs before filtering, and resync preserves filter settings.
+- The Parameters tab displays only selected parameters when filters are selected.
+- Parameter filters button appears disabled when no analytics events are available.
+
 ## [0.2.0]
 
 ### Changed
