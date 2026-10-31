@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+## [0.4.2]
+
+### Fixed
+- Compile Java and Kotlin bytecode for Java 17 so the plugin loads in Android Studio Meerkat with JDK 17.
+
 ## [0.4.1]
 
 ### Fixed

@@ -1,9 +1,15 @@
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.changelog")
     id("org.jetbrains.intellij.platform")
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
@@ -12,7 +18,7 @@ dependencies {
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
-        local("C:/Program Files/Android/Android Studio")
+        androidStudio("2024.3.2.14")
         testFramework(TestFrameworkType.Platform)
 
         // Add plugin dependencies for compilation here, for example:
@@ -22,6 +28,7 @@ dependencies {
 
 kotlin {
     compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
         // Don't generate bridge methods for interface default methods (avoids deprecated/experimental API usages)
         freeCompilerArgs.add("-jvm-default=no-compatibility")
     }
@@ -35,6 +42,10 @@ intellijPlatform {
             untilBuild = provider { null }
         }
         changeNotes = """
+            <b>0.4.2</b>
+            <ul>
+                <li>Fixed: Java and Kotlin bytecode now target Java 17 so the plugin loads in Android Studio Meerkat with JDK 17.</li>
+            </ul>
             <b>0.4.1</b>
             <ul>
                 <li>Fixed: Event-name search works independently of parameter filters, including while paused.</li>
