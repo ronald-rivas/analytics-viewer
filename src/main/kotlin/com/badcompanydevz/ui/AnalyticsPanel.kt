@@ -2,12 +2,21 @@ package com.badcompanydevz.ui
 
 import com.badcompanydevz.data.LogcatReader
 import com.badcompanydevz.model.AnalyticsEvent
+import com.badcompanydevz.Strings
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
+import java.awt.Color
+import java.awt.Component
+import java.awt.Graphics
+import java.awt.Graphics2D
+import java.awt.Polygon
+import java.awt.RenderingHints
+import javax.swing.Icon
 import javax.swing.JPanel
 
 /** Owns the state (events, properties, filter) and wires the UI components together. */
@@ -15,6 +24,8 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
     private val events = ArrayList<AnalyticsEvent>()
     private val properties = linkedMapOf<String, String>()
     private var filter = ""
+    private val parameterFilters = linkedMapOf<String, String?>()
+    private var paused = false
 
     /** Bumped on clear/resync so UI updates queued by an older logcat session are dropped. */
     @Volatile
@@ -22,7 +33,11 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
 
     private val parametersView = KeyValuePanel()
     private val propertiesView = KeyValuePanel()
-    private val eventList = EventList { parametersView.show(it?.params.orEmpty()) }
+    private lateinit var toolbar: Toolbar
+    private lateinit var parameterFiltersButton: IconButton
+    private val eventList = EventList { event ->
+        parametersView.show(visibleParams(event))
+    }
 
     private val reader = LogcatReader(
         onEvent = { e -> onUiThread { addEvent(e) } },
@@ -41,8 +56,14 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
 
         val header = JPanel(BorderLayout(0, JBUI.scale(6))).apply {
             border = JBUI.Borders.empty(4, 10)
-            add(Toolbar(status, onSync = ::resync, onClear = ::clear), BorderLayout.NORTH)
-            add(EventFilter { filter = it; refilter() }, BorderLayout.CENTER)
+            toolbar = Toolbar(status, onPause = ::togglePause, onSync = ::resync, onClear = ::clear)
+            add(toolbar, BorderLayout.NORTH)
+            add(JPanel(BorderLayout(JBUI.scale(8), 0)).apply {
+                add(EventFilter { filter = it; refilter() }, BorderLayout.CENTER)
+                parameterFiltersButton = IconButton(AllIcons.Actions.Properties, Strings["action_parameter_filters"], ::openParameterFilters)
+                parameterFiltersButton.isEnabled = false
+                add(parameterFiltersButton, BorderLayout.EAST)
+            }, BorderLayout.CENTER)
         }
         val eventsPane = JBScrollPane(
             eventList, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER
@@ -59,25 +80,64 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
 
     fun start() = reader.start()
 
+    private fun visibleParams(event: AnalyticsEvent?): List<Pair<String, String>> {
+        val params = event?.params.orEmpty()
+        if (parameterFilters.values.none { it != null }) return params
+        return params.filter { (name, _) -> parameterFilters[name] != null }
+    }
+
     private fun matches(e: AnalyticsEvent) =
-        filter.isBlank() || e.title.contains(filter, true) || e.name.contains(filter, true)
+        (filter.isBlank() || e.title.contains(filter, true) || e.name.contains(filter, true)) &&
+            (parameterFilters.values.none { it != null } ||
+                e.params.any { (name, actual) ->
+                    parameterFilters[name]?.let { it.isBlank() || actual.contains(it, true) } == true
+                }) &&
+            parameterFilters.all { (name, value) ->
+                value.isNullOrBlank() || e.params.any { (key, actual) -> key == name && actual.contains(value, true) }
+            }
+
+    private fun openParameterFilters() {
+        val dialog = ParameterFiltersDialog(parameterFilters.keys, parameterFilters)
+        if (dialog.showAndGet()) {
+            parameterFilters.putAll(dialog.filters)
+            resync()
+            refilter()
+        }
+    }
 
     private fun addEvent(e: AnalyticsEvent) {
         events.add(0, e)
+        parameterFiltersButton.isEnabled = true
+        e.params.forEach { (name, _) -> if (!parameterFilters.containsKey(name)) parameterFilters[name] = "" }
         if (events.size > MAX_EVENTS) events.subList(MAX_EVENTS, events.size).clear()
-        if (matches(e)) eventList.prepend(e, MAX_EVENTS)
+        if (!paused && matches(e)) eventList.prepend(e, MAX_EVENTS)
     }
 
-    private fun refilter() = eventList.setEvents(events.filter(::matches))
+    private fun togglePause() {
+        paused = !paused
+        toolbar.pauseButton.icon = if (paused) resumeIcon else AllIcons.Actions.Pause
+        toolbar.pauseButton.toolTipText = Strings[if (paused) "action_resume" else "action_pause"]
+        if (!paused) refilter()
+    }
+
+    private fun refilter() {
+        if (paused) return
+        eventList.setEvents(events.filter(::matches))
+        parametersView.show(visibleParams(eventList.selectedValue))
+    }
 
     private fun clear() {
         events.clear()
+        parameterFiltersButton.isEnabled = false
+        parameterFilters.clear()
         eventList.clear()
     }
 
     private fun resync() {
         epoch++
-        clear()
+        events.clear()
+        parameterFiltersButton.isEnabled = false
+        eventList.clear()
         properties.clear()
         propertiesView.show(emptyList())
         reader.start()
@@ -92,5 +152,22 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
 
     private companion object {
         const val MAX_EVENTS = 1000
+
+        val resumeIcon = object : Icon {
+            override fun getIconWidth() = AllIcons.Actions.Execute.iconWidth
+            override fun getIconHeight() = AllIcons.Actions.Execute.iconHeight
+
+            override fun paintIcon(c: Component?, g: Graphics, x: Int, y: Int) {
+                val g2 = g.create() as Graphics2D
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+                g2.color = Color.WHITE
+                g2.fill(Polygon(
+                    intArrayOf(x + iconWidth / 4, x + iconWidth * 3 / 4, x + iconWidth / 4),
+                    intArrayOf(y + iconHeight / 6, y + iconHeight / 2, y + iconHeight * 5 / 6),
+                    3
+                ))
+                g2.dispose()
+            }
+        }
     }
 }
