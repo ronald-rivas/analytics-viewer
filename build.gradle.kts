@@ -35,6 +35,10 @@ intellijPlatform {
             untilBuild = provider { null }
         }
         changeNotes = """
+            <b>0.4.1</b>
+            <ul>
+                <li>Fixed: Event-name search works independently of parameter filters, including while paused.</li>
+            </ul>
             <b>0.4.0</b>
             <ul>
                 <li>Parameter filters with visibility and value matching; applying filters resyncs without resetting them.</li>

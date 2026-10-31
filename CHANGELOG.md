@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+## [0.4.1]
+
+### Fixed
+- Event-name search works independently of parameter filters, including while analytics collection is paused.
+
 ## [0.4.0]
 
 ### Added

@@ -26,6 +26,7 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
     private var filter = ""
     private val parameterFilters = linkedMapOf<String, String?>()
     private var paused = false
+    private var eventsAtPause: List<AnalyticsEvent> = emptyList()
 
     /** Bumped on clear/resync so UI updates queued by an older logcat session are dropped. */
     @Volatile
@@ -87,14 +88,17 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
     }
 
     private fun matches(e: AnalyticsEvent) =
-        (filter.isBlank() || e.title.contains(filter, true) || e.name.contains(filter, true)) &&
+        if (filter.isNotBlank()) {
+            e.title.contains(filter, true) || e.name.contains(filter, true)
+        } else {
             (parameterFilters.values.none { it != null } ||
                 e.params.any { (name, actual) ->
                     parameterFilters[name]?.let { it.isBlank() || actual.contains(it, true) } == true
                 }) &&
-            parameterFilters.all { (name, value) ->
-                value.isNullOrBlank() || e.params.any { (key, actual) -> key == name && actual.contains(value, true) }
-            }
+                parameterFilters.all { (name, value) ->
+                    value.isNullOrBlank() || e.params.any { (key, actual) -> key == name && actual.contains(value, true) }
+                }
+        }
 
     private fun openParameterFilters() {
         val dialog = ParameterFiltersDialog(parameterFilters.keys, parameterFilters)
@@ -115,19 +119,20 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
 
     private fun togglePause() {
         paused = !paused
+        if (paused) eventsAtPause = events.toList()
         toolbar.pauseButton.icon = if (paused) resumeIcon else AllIcons.Actions.Pause
         toolbar.pauseButton.toolTipText = Strings[if (paused) "action_resume" else "action_pause"]
-        if (!paused) refilter()
+        refilter()
     }
 
     private fun refilter() {
-        if (paused) return
-        eventList.setEvents(events.filter(::matches))
+        eventList.setEvents((if (paused) eventsAtPause else events).filter(::matches))
         parametersView.show(visibleParams(eventList.selectedValue))
     }
 
     private fun clear() {
         events.clear()
+        eventsAtPause = emptyList()
         parameterFiltersButton.isEnabled = false
         parameterFilters.clear()
         eventList.clear()
@@ -136,6 +141,7 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
     private fun resync() {
         epoch++
         events.clear()
+        eventsAtPause = emptyList()
         parameterFiltersButton.isEnabled = false
         eventList.clear()
         properties.clear()

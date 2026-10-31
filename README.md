@@ -57,4 +57,4 @@ Copyright 2026 Ronald Antonio Rivas Ramírez.
 
 Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).
 
-Version: `0.4.0`
+Version: `0.4.1`
