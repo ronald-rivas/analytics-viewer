@@ -4,7 +4,13 @@
     <string name="tab_properties">Properties</string>
     <string name="action_clear">Clear</string>
     <string name="action_sync">Resync</string>
+    <string name="action_pause">Pause</string>
+    <string name="action_resume">Resume</string>
     <string name="filter_hint">Filter events</string>
+    <string name="action_parameter_filters">Parameter filters</string>
+    <string name="parameter_filters_title">Filters</string>
+    <string name="parameter_filter_hint">Filter</string>
+    <string name="action_apply">Apply</string>
     <string name="status_connected">ADB connected</string>
     <string name="status_disconnected">No device / ADB not available</string>
 </resources>

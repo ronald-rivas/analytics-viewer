@@ -2,6 +2,8 @@ package com.badcompanydevz.ui
 
 import com.intellij.ui.components.JBLabel
 import com.intellij.util.ui.JBUI
+import java.awt.AlphaComposite
+import java.awt.Component
 import java.awt.Cursor
 import java.awt.Graphics
 import java.awt.Graphics2D
@@ -17,11 +19,25 @@ class IconButton(icon: Icon, tip: String, action: () -> Unit) : JBLabel(icon) {
     init {
         toolTipText = tip
         isOpaque = false
+        disabledIcon = object : Icon {
+            override fun getIconWidth() = icon.iconWidth
+            override fun getIconHeight() = icon.iconHeight
+
+            override fun paintIcon(c: Component?, g: Graphics, x: Int, y: Int) {
+                val g2 = g.create() as Graphics2D
+                g2.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.4f)
+                icon.paintIcon(c, g2, x, y)
+                g2.dispose()
+            }
+        }
         border = JBUI.Borders.empty(3)
         cursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
         addMouseListener(object : MouseAdapter() {
-            override fun mouseClicked(e: MouseEvent) = action()
+            override fun mouseClicked(e: MouseEvent) {
+                if (isEnabled) action()
+            }
             override fun mouseEntered(e: MouseEvent) {
+                if (!isEnabled) return
                 hover = true
                 repaint()
             }
@@ -31,6 +47,13 @@ class IconButton(icon: Icon, tip: String, action: () -> Unit) : JBLabel(icon) {
                 repaint()
             }
         })
+    }
+
+    override fun setEnabled(enabled: Boolean) {
+        super.setEnabled(enabled)
+        if (!enabled) hover = false
+        cursor = if (enabled) Cursor.getPredefinedCursor(Cursor.HAND_CURSOR) else Cursor.getDefaultCursor()
+        repaint()
     }
 
     override fun paintComponent(g: Graphics) {
