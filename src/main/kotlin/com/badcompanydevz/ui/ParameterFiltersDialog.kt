@@ -15,6 +15,7 @@ import java.awt.GridLayout
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.font.TextAttribute
+import javax.swing.Action
 import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -60,7 +61,16 @@ class ParameterFiltersDialog(names: Collection<String>, current: Map<String, Str
         }
     }
 
+    override fun createActions(): Array<Action> =
+        if (controls.isEmpty()) arrayOf(cancelAction) else super.createActions()
+
     override fun createCenterPanel(): JComponent {
+        if (controls.isEmpty()) {
+            return JPanel(BorderLayout()).apply {
+                add(JLabel(Strings["parameter_filters_empty"], JLabel.CENTER), BorderLayout.CENTER)
+                preferredSize = Dimension(JBUI.scale(450), JBUI.scale(300))
+            }
+        }
         val rows = JPanel(GridLayout(0, 2, JBUI.scale(16), JBUI.scale(6))).apply {
             border = JBUI.Borders.empty(8)
             add(allCheck)

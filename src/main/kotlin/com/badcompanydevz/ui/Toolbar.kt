@@ -9,9 +9,10 @@ import javax.swing.BoxLayout
 import javax.swing.JComponent
 import javax.swing.JPanel
 
-/** Status indicator on the left; Pause, Sync and Clear icons on the right, 8dp apart. */
+/** Status indicator on the left; Run/Pause, Sync and Clear icons on the right, 8dp apart. */
 class Toolbar(status: JComponent, onPause: () -> Unit, onSync: () -> Unit, onClear: () -> Unit) : JPanel() {
-    val pauseButton = IconButton(AllIcons.Actions.Pause, Strings["action_pause"], onPause)
+    val pauseButton = IconButton(runIcon, Strings["action_run"], onPause)
+    val syncButton = IconButton(AllIcons.Actions.Refresh, Strings["action_sync"], onSync)
 
     init {
         layout = BoxLayout(this, BoxLayout.X_AXIS)
@@ -19,8 +20,12 @@ class Toolbar(status: JComponent, onPause: () -> Unit, onSync: () -> Unit, onCle
         add(Box.createHorizontalGlue())
         add(pauseButton)
         add(Box.createRigidArea(Dimension(JBUI.scale(8), 0)))
-        add(IconButton(AllIcons.Actions.Refresh, Strings["action_sync"], onSync))
+        add(syncButton)
         add(Box.createRigidArea(Dimension(JBUI.scale(8), 0)))
         add(IconButton(AllIcons.Actions.GC, Strings["action_clear"], onClear))
+    }
+
+    companion object {
+        val runIcon = AllIcons.Toolwindows.ToolWindowRun
     }
 }
