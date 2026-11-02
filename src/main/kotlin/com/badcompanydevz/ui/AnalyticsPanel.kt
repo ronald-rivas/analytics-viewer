@@ -10,13 +10,6 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.JBUI
 import java.awt.BorderLayout
-import java.awt.Color
-import java.awt.Component
-import java.awt.Graphics
-import java.awt.Graphics2D
-import java.awt.Polygon
-import java.awt.RenderingHints
-import javax.swing.Icon
 import javax.swing.JPanel
 
 /** Owns the state (events, properties, filter) and wires the UI components together. */
@@ -25,7 +18,8 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
     private val properties = linkedMapOf<String, String>()
     private var filter = ""
     private val parameterFilters = linkedMapOf<String, String?>()
-    private var paused = false
+    private var paused = true
+    private var adbConnected = false
     private var eventsAtPause: List<AnalyticsEvent> = emptyList()
 
     /** Bumped on clear/resync so UI updates queued by an older logcat session are dropped. */
@@ -51,7 +45,7 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
     )
 
     init {
-        val status = StatusIndicator(onReconnect = ::resync)
+        val status = StatusIndicator(onConnectionChanged = ::onConnectionChanged)
         Disposer.register(this, reader)
         Disposer.register(this, status)
 
@@ -62,7 +56,6 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
             add(JPanel(BorderLayout(JBUI.scale(8), 0)).apply {
                 add(EventFilter { filter = it; refilter() }, BorderLayout.CENTER)
                 parameterFiltersButton = IconButton(AllIcons.Actions.Properties, Strings["action_parameter_filters"], ::openParameterFilters)
-                parameterFiltersButton.isEnabled = false
                 add(parameterFiltersButton, BorderLayout.EAST)
             }, BorderLayout.CENTER)
         }
@@ -77,6 +70,7 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
             add(eventsPane, BorderLayout.CENTER)
         }
         add(ThinSplitPane(left, FolderTabs(parametersView, propertiesView)), BorderLayout.CENTER)
+        updateConnectionActions()
     }
 
     fun start() = reader.start()
@@ -91,25 +85,24 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
         val dialog = ParameterFiltersDialog(parameterFilters.keys, parameterFilters)
         if (dialog.showAndGet()) {
             parameterFilters.putAll(dialog.filters)
-            resync()
             refilter()
         }
     }
 
     private fun addEvent(e: AnalyticsEvent) {
         events.add(0, e)
-        parameterFiltersButton.isEnabled = true
         e.params.forEach { (name, _) -> if (!parameterFilters.containsKey(name)) parameterFilters[name] = "" }
         if (events.size > MAX_EVENTS) events.subList(MAX_EVENTS, events.size).clear()
         if (!paused && matches(e)) eventList.prepend(e, MAX_EVENTS)
     }
 
     private fun togglePause() {
+        if (!adbConnected) return
         paused = !paused
         if (paused) eventsAtPause = events.toList()
-        toolbar.pauseButton.icon = if (paused) resumeIcon else AllIcons.Actions.Pause
-        toolbar.pauseButton.toolTipText = Strings[if (paused) "action_resume" else "action_pause"]
-        refilter()
+        toolbar.pauseButton.icon = if (paused) Toolbar.runIcon else AllIcons.Actions.Pause
+        toolbar.pauseButton.toolTipText = Strings[if (paused) "action_run" else "action_pause"]
+        if (!paused) refilter()
     }
 
     private fun refilter() {
@@ -121,20 +114,42 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
     private fun clear() {
         events.clear()
         eventsAtPause = emptyList()
-        parameterFiltersButton.isEnabled = false
-        parameterFilters.clear()
         eventList.clear()
     }
 
     private fun resync() {
+        if (!adbConnected) return
         epoch++
         events.clear()
         eventsAtPause = emptyList()
-        parameterFiltersButton.isEnabled = false
         eventList.clear()
         properties.clear()
         propertiesView.show(emptyList())
         reader.start()
+    }
+
+    private fun onConnectionChanged(connected: Boolean) {
+        adbConnected = connected
+        if (!connected) {
+            epoch++
+            reader.stop()
+            paused = true
+            clear()
+            parameterFilters.clear()
+            properties.clear()
+            propertiesView.show(emptyList())
+        } else {
+            resync()
+        }
+        updateConnectionActions()
+        refilter()
+    }
+
+    private fun updateConnectionActions() {
+        toolbar.pauseButton.isEnabled = adbConnected
+        toolbar.syncButton.isEnabled = adbConnected
+        toolbar.pauseButton.icon = if (paused) Toolbar.runIcon else AllIcons.Actions.Pause
+        toolbar.pauseButton.toolTipText = Strings[if (paused) "action_run" else "action_pause"]
     }
 
     private fun onUiThread(block: () -> Unit) {
@@ -146,22 +161,5 @@ class AnalyticsPanel : JPanel(BorderLayout()), Disposable {
 
     private companion object {
         const val MAX_EVENTS = 1000
-
-        val resumeIcon = object : Icon {
-            override fun getIconWidth() = AllIcons.Actions.Execute.iconWidth
-            override fun getIconHeight() = AllIcons.Actions.Execute.iconHeight
-
-            override fun paintIcon(c: Component?, g: Graphics, x: Int, y: Int) {
-                val g2 = g.create() as Graphics2D
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-                g2.color = Color.WHITE
-                g2.fill(Polygon(
-                    intArrayOf(x + iconWidth / 4, x + iconWidth * 3 / 4, x + iconWidth / 4),
-                    intArrayOf(y + iconHeight / 6, y + iconHeight / 2, y + iconHeight * 5 / 6),
-                    3
-                ))
-                g2.dispose()
-            }
-        }
     }
 }
