@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [0.4.4]
+
+### Changed
+- Changed buttons logic.
+
+### Fixed
+- Set plugin paused by default.
+
 ## [0.4.3]
 
 ### Added
