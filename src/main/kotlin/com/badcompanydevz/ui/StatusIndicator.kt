@@ -16,9 +16,9 @@ import java.util.concurrent.TimeUnit
 
 /**
  * Dot that shows whether an adb device is ready (green), missing (red) or not checked yet (gray).
- * Polls adb off the UI thread and calls [onReconnect] when the state goes from red to green.
+ * Polls adb off the UI thread and reports connection changes.
  */
-class StatusIndicator(private val onReconnect: () -> Unit) : JBLabel(), Disposable {
+class StatusIndicator(private val onConnectionChanged: (Boolean) -> Unit) : JBLabel(), Disposable {
     private var connected: Boolean? = null
 
     private val poll = AppExecutorUtil.getAppScheduledExecutorService().scheduleWithFixedDelay({
@@ -32,7 +32,7 @@ class StatusIndicator(private val onReconnect: () -> Unit) : JBLabel(), Disposab
         connected = now
         toolTipText = Strings[if (now) "status_connected" else "status_disconnected"]
         repaint()
-        if (prev == false && now) onReconnect()
+        onConnectionChanged(now)
     }
 
     override fun getPreferredSize() = Dimension(JBUI.scale(14), JBUI.scale(22))

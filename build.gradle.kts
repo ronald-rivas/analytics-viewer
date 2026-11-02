@@ -42,6 +42,11 @@ intellijPlatform {
             untilBuild = provider { null }
         }
         changeNotes = """
+            <b>0.4.4</b>
+            <ul>
+                <li>Changed buttons logic.</li>
+                <li>Set plugin paused by default</li>
+            </ul>
             <b>0.4.3</b>
             <ul>
                 <li>Added an "All" checkbox with a partial-selection state and a "Remove filters" link.</li>

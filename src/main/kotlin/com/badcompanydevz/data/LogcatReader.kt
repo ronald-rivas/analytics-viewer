@@ -47,7 +47,7 @@ class LogcatReader(
     }
 
     @Synchronized
-    private fun stop() {
+    fun stop() {
         generation++
         process?.destroyForcibly()
         process = null
