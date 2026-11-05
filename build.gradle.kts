@@ -14,9 +14,11 @@ java {
 
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 dependencies {
+    implementation(libs.poi)
+    implementation(libs.poi.ooxml)
     testImplementation(libs.junit)
 
-    // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
+    // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij-tools/intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
         local("C:/Program Files/Android/Android Studio")
         testFramework(TestFrameworkType.Platform)
