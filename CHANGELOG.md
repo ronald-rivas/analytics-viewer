@@ -2,6 +2,11 @@
 
 # Analytics Viewer For Firebase Changelog
 
+## [0.5.1]
+
+### Changed
+- Updated plugin icons.
+
 ## [0.5.0]
 
 ### Added
