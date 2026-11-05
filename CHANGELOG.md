@@ -2,7 +2,17 @@
 
 # Analytics Viewer For Firebase Changelog
 
-## [Unreleased]
+## [0.5.0]
+
+### Added
+- Export analytics events and properties to Excel file.
+- Option to export only filtered events via a dialog.
+- Integration with Apache POI for Excel generation.
+
+### Changed
+- Updated ToolWindow content initialization to receive the project instance.
+- Added a Save button to the toolbar.
+- Updated tooltips to use HTML chunks for better rendering.
 
 ## [0.4.4]
 
