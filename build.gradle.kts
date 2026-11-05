@@ -44,6 +44,10 @@ intellijPlatform {
             untilBuild = provider { null }
         }
         changeNotes = """
+            <b>0.5.1</b>
+            <ul>
+                <li>Updated plugin icons.</li>
+            </ul>
             <b>0.5.0</b>
             <ul>
                 <li>Export analytics events and properties to Excel file.</li>
