@@ -20,7 +20,7 @@ dependencies {
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij-tools/intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
-        local("C:/Program Files/Android/Android Studio")
+        androidStudio("2024.3.2.14")
         testFramework(TestFrameworkType.Platform)
 
         // Add plugin dependencies for compilation here, for example:

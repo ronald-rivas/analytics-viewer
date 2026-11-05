@@ -5,10 +5,8 @@ import com.badcompanydevz.data.LogcatReader
 import com.badcompanydevz.model.AnalyticsEvent
 import com.badcompanydevz.Strings
 import com.intellij.icons.AllIcons
-import com.intellij.ide.setToolTipText
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.fileChooser.FileChooser
 import com.intellij.openapi.fileChooser.FileChooserFactory
 import com.intellij.openapi.fileChooser.FileSaverDescriptor
 import com.intellij.openapi.project.Project
@@ -152,7 +150,7 @@ class AnalyticsPanel(val project: Project) : JPanel(BorderLayout()), Disposable 
         paused = !paused
         if (paused) eventsAtPause = events.toList()
         toolbar.pauseButton.icon = if (paused) Toolbar.runIcon else AllIcons.Actions.Pause
-        toolbar.pauseButton.setToolTipText(HtmlChunk.text(Strings[if (paused) "action_run" else "action_pause"]))
+        toolbar.pauseButton.toolTipText = Strings[if (paused) "action_run" else "action_pause"]
         if (!paused) refilter()
     }
 
@@ -200,7 +198,7 @@ class AnalyticsPanel(val project: Project) : JPanel(BorderLayout()), Disposable 
         toolbar.pauseButton.isEnabled = adbConnected
         toolbar.syncButton.isEnabled = adbConnected
         toolbar.pauseButton.icon = if (paused) Toolbar.runIcon else AllIcons.Actions.Pause
-        toolbar.pauseButton.setToolTipText(HtmlChunk.text(Strings[if (paused) "action_run" else "action_pause"]))
+        toolbar.pauseButton.toolTipText = Strings[if (paused) "action_run" else "action_pause"]
     }
 
     private fun onUiThread(block: () -> Unit) {
