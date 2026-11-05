@@ -14,9 +14,11 @@ java {
 
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin.html
 dependencies {
+    implementation(libs.poi)
+    implementation(libs.poi.ooxml)
     testImplementation(libs.junit)
 
-    // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
+    // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij-tools/intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
         local("C:/Program Files/Android/Android Studio")
         testFramework(TestFrameworkType.Platform)
@@ -42,17 +44,19 @@ intellijPlatform {
             untilBuild = provider { null }
         }
         changeNotes = """
+            <b>0.5.0</b>
+            <ul>
+                <li>Export analytics events and properties to Excel file.</li>
+                <li>Option to export only filtered events via a dialog.</li>
+                <li>Integration with Apache POI for Excel generation.</li>
+                <li>Updated ToolWindow content initialization to receive the project instance.</li>
+                <li>Added a Save button to the toolbar.</li>
+                <li>Updated tooltips to use HTML chunks for better rendering.</li>
+            </ul>
             <b>0.4.4</b>
             <ul>
                 <li>Changed buttons logic.</li>
                 <li>Set plugin paused by default</li>
-            </ul>
-            <b>0.4.3</b>
-            <ul>
-                <li>Added an "All" checkbox with a partial-selection state and a "Remove filters" link.</li>
-                <li>Kept filter inputs and spacing stable when resizing the dialog.</li>
-                <li>Fixed filtering when all parameters are deselected and reselecting "All" afterwards.</li>
-                <li>Refactored parameter filtering and added tests.</li>
             </ul>
             <b>0.4.2</b>
             <ul>
