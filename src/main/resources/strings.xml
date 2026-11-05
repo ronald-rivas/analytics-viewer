@@ -6,6 +6,7 @@
     <string name="action_sync">Resync</string>
     <string name="action_pause">Pause</string>
     <string name="action_run">Run</string>
+    <string name="action_save">Save</string>
     <string name="filter_hint">Filter events</string>
     <string name="action_parameter_filters">Parameter filters</string>
     <string name="parameter_filters_title">Filters</string>
@@ -16,4 +17,5 @@
     <string name="action_apply">Apply</string>
     <string name="status_connected">ADB connected</string>
     <string name="status_disconnected">No device / ADB not available</string>
+    <string name="plugin_name">AnalyticsViewer</string>
 </resources>

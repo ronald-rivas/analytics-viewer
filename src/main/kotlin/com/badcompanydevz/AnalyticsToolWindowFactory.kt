@@ -11,7 +11,7 @@ class AnalyticsToolWindowFactory : ToolWindowFactory {
     override fun shouldBeAvailable(project: Project) = true
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val panel = AnalyticsPanel()
+        val panel = AnalyticsPanel(project)
         Disposer.register(toolWindow.disposable, panel)
         panel.start()
         val content = ContentFactory.getInstance().createContent(panel, null, false)
