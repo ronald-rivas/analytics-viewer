@@ -100,7 +100,7 @@ class AnalyticsPanel(val project: Project) : JPanel(BorderLayout()), Disposable 
         val userHome = System.getProperty("user.home")
         val pluginName = Strings["plugin_name"]
         val projectName = project.name
-        val defaultPath = "$userHome\\$pluginName\\$projectName"
+        val defaultPath = File(File(userHome, pluginName), projectName).absolutePath
         val dialog = SavedAnalyticsDialog(defaultPath)
 
         if (dialog.showAndGet()) {
@@ -124,13 +124,17 @@ class AnalyticsPanel(val project: Project) : JPanel(BorderLayout()), Disposable 
                 val listToExport = if (paused) eventsAtPause else events
                 val currentFilter = currentFilter()
                 val filteredList = if (applyFilter) {
-                    listToExport.filter(currentFilter::matches)
+                    listToExport.filter(currentFilter::matchesFilters)
                 } else {
                     listToExport
                 }
 
                 try {
-                    ExcelExporter.export(finalFile, filteredList, properties)
+                    ExcelExporter.export(
+                        file = finalFile,
+                        events = filteredList,
+                        userProperties = properties,
+                        allowedParamKeys = parameterFilters.filterValues { it != null || !applyFilter }.keys)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -197,6 +201,8 @@ class AnalyticsPanel(val project: Project) : JPanel(BorderLayout()), Disposable 
     private fun updateConnectionActions() {
         toolbar.pauseButton.isEnabled = adbConnected
         toolbar.syncButton.isEnabled = adbConnected
+        toolbar.saveButton.isEnabled = adbConnected
+        toolbar.clearButton.isEnabled = adbConnected
         toolbar.pauseButton.icon = if (paused) Toolbar.runIcon else AllIcons.Actions.Pause
         toolbar.pauseButton.toolTipText = Strings[if (paused) "action_run" else "action_pause"]
     }

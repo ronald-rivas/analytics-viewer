@@ -7,7 +7,7 @@
     <string name="action_pause">Pause</string>
     <string name="action_run">Run</string>
     <string name="action_save">Save</string>
-    <string name="filter_hint">Filter events</string>
+    <string name="search_hint">Search events</string>
     <string name="action_parameter_filters">Parameter filters</string>
     <string name="parameter_filters_title">Filters</string>
     <string name="parameter_filter_hint">Filter</string>
@@ -18,4 +18,5 @@
     <string name="status_connected">ADB connected</string>
     <string name="status_disconnected">No device / ADB not available</string>
     <string name="plugin_name">AnalyticsViewer</string>
+    <string name="save_file_description"><![CDATA[<html>You are about to generate and save an Excel.<br/>Remember that you can save unfiltered analytics by unchecking the 'Filtered' option.</html>]]></string>
 </resources>

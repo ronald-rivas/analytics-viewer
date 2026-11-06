@@ -18,6 +18,7 @@ class Toolbar(status: JComponent, onPause: () -> Unit, onSync: () -> Unit, onCle
     val pauseButton = IconButton(runIcon, Strings["action_run"], onPause)
     val syncButton = IconButton(AllIcons.Actions.Refresh, Strings["action_sync"], onSync)
     val saveButton = IconButton(AllIcons.Actions.Download, Strings["action_save"], onSave)
+    val clearButton = IconButton(AllIcons.Actions.GC, Strings["action_clear"], onClear)
     val separator: Component = add(JSeparator(SwingConstants.VERTICAL).apply {
         foreground = JBColor.border()
         maximumSize = Dimension(JBUI.scale(2), JBUI.scale(16))
@@ -31,7 +32,7 @@ class Toolbar(status: JComponent, onPause: () -> Unit, onSync: () -> Unit, onCle
         add(Box.createRigidArea(Dimension(JBUI.scale(8), 0)))
         add(syncButton)
         add(Box.createRigidArea(Dimension(JBUI.scale(8), 0)))
-        add(IconButton(AllIcons.Actions.GC, Strings["action_clear"], onClear))
+        add(clearButton)
         add(Box.createRigidArea(Dimension(JBUI.scale(8), 0)))
         add(separator)
         add(Box.createRigidArea(Dimension(JBUI.scale(8), 0)))
