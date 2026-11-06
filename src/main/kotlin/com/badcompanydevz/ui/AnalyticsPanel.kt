@@ -110,9 +110,10 @@ class AnalyticsPanel(val project: Project) : JPanel(BorderLayout()), Disposable 
 
             val descriptor = FileSaverDescriptor(
                 Strings["action_save"],
-                "Choose the destination and name for the Excel file",
-                "xlsx"
+                "Choose the destination and name for the Excel file"
             )
+
+            descriptor.withExtensionFilter("xlsx")
 
             val fileWrapper = FileChooserFactory.getInstance()
                 .createSaveFileDialog(descriptor, project)
