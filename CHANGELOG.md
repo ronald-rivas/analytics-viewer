@@ -2,12 +2,12 @@
 
 # Analytics Viewer For Firebase Changelog
 
+## [0.5.2]
+
+### Fixed
+- Fixed plugin crash in Android Studio Meerkat.
+
 ## [0.5.1]
-
-### Changed
-- Updated plugin icons.
-
-## [0.5.0]
 
 ### Added
 - Export analytics events and properties to Excel file.

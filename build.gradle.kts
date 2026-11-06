@@ -44,6 +44,10 @@ intellijPlatform {
             untilBuild = provider { null }
         }
         changeNotes = """
+            <b>0.5.2</b>
+            <ul>
+                <li>Fixed plugin crash in Android Studio Meerkat.</li>
+            </ul>
             <b>0.5.1</b>
             <ul>
                 <li>Updated plugin icons.</li>
