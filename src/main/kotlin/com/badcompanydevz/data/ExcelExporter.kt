@@ -15,7 +15,12 @@ object ExcelExporter {
      * @param events The list of events to export.
      * @param userProperties The current user properties to include in each row.
      */
-    fun export(file: File, events: List<AnalyticsEvent>, userProperties: Map<String, String>) {
+    fun export(
+        file: File,
+        events: List<AnalyticsEvent>,
+        userProperties: Map<String, String>,
+        allowedParamKeys: Set<String>? = null
+    ) {
         val workbook = XSSFWorkbook()
         val sheet = workbook.createSheet("Analytics Events")
 
@@ -23,8 +28,9 @@ object ExcelExporter {
         val headerRow = sheet.createRow(0)
         val headers = mutableListOf("Event Name", "Event Title")
         
-        // Add all unique parameter keys as headers
-        val allParamKeys = events.flatMap { it.params.map { it.first } }.distinct().sorted()
+        // Determine which parameter keys to include
+        val allParamKeys = allowedParamKeys?.sorted()
+            ?: events.flatMap { event -> event.params.map { it.first } }.distinct().sorted()
         headers.addAll(allParamKeys)
         
         // Add User Property keys as headers
@@ -61,7 +67,7 @@ object ExcelExporter {
         }
 
         // Auto-size columns
-        for (i in 0 until headers.size) {
+        for (i in headers.indices) {
             sheet.autoSizeColumn(i)
         }
 

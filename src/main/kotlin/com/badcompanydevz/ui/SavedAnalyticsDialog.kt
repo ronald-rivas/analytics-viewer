@@ -37,7 +37,7 @@ class SavedAnalyticsDialog(val path: String) : DialogWrapper(true) {
             border = JBUI.Borders.empty(24)
         }
 
-        val textLabel = JLabel("You are about to generate and save an Excel file to the following path: $path")
+        val textLabel = JLabel(Strings["save_file_description"])
         mainPanel.add(textLabel, BorderLayout.CENTER)
 
         return mainPanel

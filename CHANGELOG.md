@@ -2,6 +2,13 @@
 
 # Analytics Viewer For Firebase Changelog
 
+## [0.5.5]
+
+### Fixed
+- Fixed regression where active filters hid all analytics events.
+- Fixed Excel export to only include columns for currently active parameter filters.
+- Enhanced UI by disabling Save and Clear buttons when no ADB connection is present.
+
 ## [0.5.2]
 
 ### Fixed

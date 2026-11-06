@@ -9,7 +9,7 @@ import javax.swing.event.DocumentListener
 /** Always-active text field that reports its trimmed text through [onFilter] after a short debounce. */
 class EventFilter(onFilter: (String) -> Unit) : JBTextField() {
     init {
-        emptyText.text = Strings["filter_hint"]
+        emptyText.text = Strings["search_hint"]
         val debounce = Timer(DEBOUNCE_MS) { onFilter(text.trim()) }.apply { isRepeats = false }
         document.addDocumentListener(object : DocumentListener {
             override fun insertUpdate(e: DocumentEvent) = debounce.restart()
