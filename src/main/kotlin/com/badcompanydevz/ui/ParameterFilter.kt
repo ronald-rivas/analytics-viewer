@@ -15,10 +15,12 @@ internal class ParameterFilter(private val values: Map<String, String?>, private
     fun matches(event: AnalyticsEvent): Boolean {
         if (values.isNotEmpty() && selected.isEmpty()) return false
         if (search.isNotBlank()) return event.title.contains(search, true) || event.name.contains(search, true)
-        return (selected.isEmpty() || event.params.any { (name, actual) ->
-            selected[name]?.let { it.isBlank() || actual.contains(it, true) } == true
-        }) && selected.all { (name, value) ->
-            value.isNullOrBlank() || event.params.any { (key, actual) -> key == name && actual.contains(value, true) }
-        }
+        return matchesFilters(event)
+    }
+
+    fun matchesFilters(event: AnalyticsEvent): Boolean = (selected.isEmpty() || event.params.any { (name, actual) ->
+        selected[name]?.let { it.isBlank() || actual.contains(it, true) } == true
+    }) && selected.all { (name, value) ->
+        value.isNullOrBlank() || event.params.any { (key, actual) -> key == name && actual.contains(value, true) }
     }
 }
